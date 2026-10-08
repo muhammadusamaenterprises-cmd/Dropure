@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropure - Pure Water Business Management Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.25s ease-out forwards; }
+        .nav-btn.active { background-color: #0f172a; color: white; box-shadow: 0 4px 14px 0 rgb(0 0 0 / 10%); }
+        .nav-btn:not(.active):hover { background-color: #f1f5f9; }
+        input[type="file"] { display: none; }
+        @media print { .no-print { display: none !important; } }
+        .pos-product-btn { min-height: 100px; transition: transform .12s ease, box-shadow .12s ease; }
+        .pos-product-btn:active { transform: scale(.97); }
+        .pos-product-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15,23,42,.08); }
+        .pos-bottom-nav { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+        @media (max-width: 767px) {
+            #app-container { height: 100dvh; }
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div id="main-app-wrapper">
+        <!-- Password Lock Screen -->
+        <div id="lock-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
+            <div class="w-full max-w-sm text-center">
+                <div class="mx-auto bg-blue-600 h-16 w-16 flex items-center justify-center rounded-2xl mb-4 shadow-lg shadow-blue-500/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                </div>
+                <h1 class="text-2xl font-bold text-white">Dropure Water Suite</h1>
+                <p class="text-slate-400 text-sm mb-6">Enter password to access system.</p>
+                <form id="password-form" class="space-y-4">
+                    <input type="password" id="password-input" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white text-center focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Password">
+                    <p id="password-error" class="text-red-400 text-sm h-4"></p>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition">Unlock System</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main App Container -->
+        <div id="app-container" class="hidden h-screen bg-slate-50 flex flex-col md:flex-row overflow-hidden">
+            <!-- Sidebar Navigation -->
+            <aside class="w-full md:w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
+                <div class="border-b p-4 flex items-center justify-between">
+                    <h1 class="text-2xl font-black text-blue-600 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                        <span>Dropure</span>
+                    </h1>
+                    <span class="text-xs bg-blue-50 text-blue-700 font-extrabold px-2 py-0.5 rounded-full">v3.0</span>
+                </div>
+                <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+                    <a href="#" id="nav-pos" class="nav-btn flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M7 8h10M7 12h2m3 0h2m3 0h2M7 16h2m3 0h2m3 0h2"></path></svg>POS / New Sale</a>
+                    <a href="#" id="nav-customers" class="nav-btn flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>Customers</a>
+                    <a href="#" id="nav-bottles" class="nav-btn flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>Bottle Tracking</a>
+                    <a href="#" id="nav-deliveries" class="nav-btn flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>Deliveries</a>
+                    <a href="#" id="nav-reminders" class="nav-btn flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>Reminders</a>
+                    <a href="#" id="nav-subscriptions" class="nav-btn flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>Subscriptions</a>
+                    <a href="#" id="nav-inventory" class="nav-btn flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>Inventory / Stock</a>
+                    <a href="#" id="nav-dashboard" class="nav-btn flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>Dashboard</a>
+                    <a href="#" id="nav-expenses" class="nav-btn flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>Expenses</a>
+                    <a href="#" id="nav-billing" class="nav-btn flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect></svg>Billing Center</a>
+                    <a href="#" id="nav-settings" class="nav-btn flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Settings</a>
+                </nav>
+                <div class="p-3 border-t space-y-2 hidden md:block">
+                    <button id="export-report-btn" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100">Export Report (CSV)</button>
+                    <button id="save-btn" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 hover:bg-blue-100">Save Data File</button>
+                    <button id="load-btn" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Load Data File</button>
+                    <input type="file" id="load-file-input" accept=".json">
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="flex-1 p-4 lg:p-6 overflow-y-auto mb-14 md:mb-0">
+
+                <!-- SECTION 1: POS / NEW SALE -->
+                <div id="view-pos" class="space-y-4 fade-in">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-4 rounded-2xl border shadow-sm">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900">POS Counter & New Sale</h2>
+                            <p class="text-xs text-slate-500">Tap quick products or enter custom sales.</p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <select id="pos-customer-select" class="px-3 py-2 border rounded-xl text-sm font-bold bg-slate-50 focus:ring-2 focus:ring-blue-500">
+                                <option value="">👤 Walk-in Customer</option>
+                            </select>
+                            <button id="pos-hold-btn" class="px-3 py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-extrabold hover:bg-amber-200">Hold Sale</button>
+                            <button id="pos-resume-btn" class="px-3 py-2 bg-purple-100 text-purple-800 rounded-xl text-xs font-extrabold hover:bg-purple-200">
+                                Resume (<span id="held-count">0</span>)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                        <!-- Products & Custom Input -->
+                        <div class="lg:col-span-7 space-y-4">
+                            <div class="bg-white border rounded-2xl p-4 shadow-sm">
+                                <h3 class="text-sm font-bold text-slate-800 mb-3">One-tap Products</h3>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <button class="pos-product-btn rounded-xl border-2 border-blue-200 bg-blue-50/40 p-3 text-left hover:border-blue-500 flex flex-col justify-between" data-size="5" data-price="20">
+                                        <div class="flex justify-between items-center"><span class="text-2xl">🟦</span><span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">5L</span></div>
+                                        <div>
+                                            <p class="font-bold text-slate-800 text-sm">5L Water Bottle</p>
+                                            <p class="text-lg font-black text-blue-700">Rs 20</p>
+                                        </div>
+                                    </button>
+                                    <button class="pos-product-btn rounded-xl border-2 border-blue-200 bg-blue-50/40 p-3 text-left hover:border-blue-500 flex flex-col justify-between" data-size="10" data-price="40">
+                                        <div class="flex justify-between items-center"><span class="text-2xl">🟦</span><span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">10L</span></div>
+                                        <div>
+                                            <p class="font-bold text-slate-800 text-sm">10L Water Bottle</p>
+                                            <p class="text-lg font-black text-blue-700">Rs 40</p>
+                                        </div>
+                                    </button>
+                                    <button class="pos-product-btn rounded-xl border-2 border-blue-200 bg-blue-50/40 p-3 text-left hover:border-blue-500 flex flex-col justify-between" data-size="19" data-price="60">
+                                        <div class="flex justify-between items-center"><span class="text-2xl">🟦</span><span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">19L</span></div>
+                                        <div>
+                                            <p class="font-bold text-slate-800 text-sm">19L Water Bottle</p>
+                                            <p class="text-lg font-black text-blue-700">Rs 60</p>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="bg-white border rounded-2xl p-4 shadow-sm">
+                                <h3 class="text-xs font-extrabold text-slate-600 uppercase tracking-wider mb-2">Custom Product / Custom Price</h3>
+                                <form id="custom-product-form" class="grid grid-cols-12 gap-2">
+                                    <input type="text" id="custom-name" placeholder="Product Name" class="col-span-5 p-2 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500" required>
+                                    <input type="number" id="custom-price" placeholder="Price (Rs)" class="col-span-3 p-2 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500" required min="0">
+                                    <input type="number" id="custom-qty" value="1" min="1" class="col-span-2 p-2 text-sm border rounded-xl text-center font-bold">
+                                    <button type="submit" class="col-span-2 bg-slate-800 text-white font-bold text-xs rounded-xl hover:bg-slate-900">+ Add</button>
+                                </form>
+                            </div>
+
+                            <div class="bg-white border rounded-2xl p-4 shadow-sm">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="font-bold text-slate-800 text-sm">Today's Sales Summary</h3>
+                                    <div class="flex items-center gap-2">
+                                        <button onclick="window.deleteAllSales()" class="bg-red-50 text-red-700 border border-red-200 px-2 py-1 rounded-lg text-[10px] font-bold">🗑️ Delete All</button>
+                                        <span id="pos-today-total" class="font-black text-emerald-600 text-lg">Rs 0</span>
+                                    </div>
+                                </div>
+                                <div id="pos-recent-sales" class="space-y-1.5 max-h-48 overflow-y-auto text-xs"></div>
+                            </div>
+                        </div>
+
+                        <!-- Shopping Cart & Calculations -->
+                        <div class="lg:col-span-5 bg-white border rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between border-b pb-3 mb-3">
+                                    <h3 class="font-black text-lg text-slate-900">Cart Items</h3>
+                                    <button id="pos-clear-cart" class="text-xs font-bold text-red-600 hover:bg-red-50 px-2 py-1 rounded-lg">Clear Cart</button>
+                                </div>
+
+                                <div id="pos-cart-items" class="space-y-2 max-h-52 overflow-y-auto mb-3">
+                                    <p class="text-center text-slate-400 py-8 text-xs">Cart is empty. Tap products to add.</p>
+                                </div>
+                            </div>
+
+                            <div class="border-t pt-3 space-y-2 bg-slate-50/70 p-3 rounded-xl border">
+                                <div class="flex justify-between text-xs font-semibold"><span>Subtotal:</span><span id="cart-subtotal" class="font-bold">Rs 0</span></div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span>Discount (Rs):</span>
+                                    <input type="number" id="cart-discount" value="0" min="0" class="w-20 p-1 text-right border rounded-lg bg-white font-bold">
+                                </div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span>Delivery Charges:</span>
+                                    <input type="number" id="cart-delivery" value="0" min="0" class="w-20 p-1 text-right border rounded-lg bg-white font-bold">
+                                </div>
+                                <div class="flex justify-between text-base font-black border-t pt-2 text-slate-900">
+                                    <span>Total:</span>
+                                    <span id="cart-total" class="text-blue-600">Rs 0</span>
+                                </div>
+
+                                <div class="pt-2">
+                                    <label class="block text-xs font-extrabold text-slate-600 mb-1">Payment Method:</label>
+                                    <select id="cart-payment-method" class="w-full p-2 text-xs border rounded-xl font-bold bg-white focus:ring-2 focus:ring-blue-500">
+                                        <option value="💵 Cash">💵 Cash</option>
+                                        <option value="🟢 Easypaisa">🟢 Easypaisa</option>
+                                        <option value="🟢 JazzCash">🟢 JazzCash</option>
+                                        <option value="🏦 Bank transfer">🏦 Bank transfer</option>
+                                        <option value="💳 Card">💳 Card</option>
+                                        <option value="Credit / Udhaar">Credit / Udhaar (Outstanding Balance)</option>
+                                        <option value="Split payment">Split Payment</option>
+                                    </select>
+                                </div>
+
+                                <div id="split-payment-fields" class="hidden space-y-2 pt-1 border-t">
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div><label class="font-semibold">Cash Paid:</label><input type="number" id="split-cash" value="0" min="0" class="w-full p-1 border rounded bg-white"></div>
+                                        <div><label class="font-semibold">Bank/Digital Paid:</label><input type="number" id="split-online" value="0" min="0" class="w-full p-1 border rounded bg-white"></div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2 pt-1">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600">Amount Received:</label>
+                                        <input type="number" id="cart-amount-received" value="0" min="0" class="w-full p-2 border rounded-xl font-black bg-white text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600">Change to Return:</label>
+                                        <div id="cart-change-return" class="p-2 border rounded-xl font-black text-emerald-600 bg-emerald-50 text-center text-sm">Rs 0</div>
+                                    </div>
+                                </div>
+
+                                <button id="pos-checkout-btn" class="w-full mt-2 py-3 rounded-xl bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 shadow-md transition">
+                                    Complete Sale & Send Receipt
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: CUSTOMER MANAGEMENT -->
+                <div id="view-customers" class="hidden space-y-4 fade-in">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-4 rounded-2xl border shadow-sm">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900">🟢 Customer Management</h2>
+                            <p class="text-xs text-slate-500">Profiles, types, ledgers, and one-tap customer actions.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="search-customer" placeholder="Search customer, phone, area..." class="px-3 py-2 border rounded-xl text-sm w-60 focus:ring-2 focus:ring-blue-500">
+                            <button onclick="window.deleteAllCustomers()" class="bg-red-50 text-red-700 border border-red-200 font-bold px-3 py-2 rounded-xl text-xs">🗑️ Delete All</button>
+                            <button id="add-customer-btn" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs hover:bg-blue-700 shadow-sm">+ New Customer</button>
+                        </div>
+                    </div>
+
+                    <div id="customer-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                </div>
+
+                <!-- SECTION 3: BOTTLE TRACKING -->
+                <div id="view-bottles" class="hidden space-y-4 fade-in">
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <div>
+                                <h2 class="text-2xl font-black text-slate-900">🔵 Bottle Tracking Hub</h2>
+                                <p class="text-xs text-slate-500">Shop bottle inventory & customer bottle balance ledgers.</p>
+                            </div>
+                            <button id="save-shop-bottles-btn" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold">Save Shop Bottles</button>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="bg-blue-50 border border-blue-200 p-3.5 rounded-xl">
+                                <p class="text-xs font-extrabold text-blue-700">Full Bottles</p>
+                                <input type="number" id="shop-full-bottles" value="120" class="text-2xl font-black bg-transparent w-full focus:outline-none">
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl">
+                                <p class="text-xs font-extrabold text-slate-600">Empty Bottles</p>
+                                <input type="number" id="shop-empty-bottles" value="40" class="text-2xl font-black bg-transparent w-full focus:outline-none">
+                            </div>
+                            <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl">
+                                <p class="text-xs font-extrabold text-amber-700">Damaged Bottles</p>
+                                <input type="number" id="shop-damaged-bottles" value="2" class="text-2xl font-black bg-transparent w-full focus:outline-none">
+                            </div>
+                            <div class="bg-red-50 border border-red-200 p-3.5 rounded-xl">
+                                <p class="text-xs font-extrabold text-red-600">Missing Bottles</p>
+                                <input type="number" id="shop-missing-bottles" value="1" class="text-2xl font-black bg-transparent w-full focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm">
+                        <h3 class="text-base font-bold text-slate-900 mb-3">Customer Bottle Balance & Deposit Balances</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="border-b bg-slate-50 font-extrabold text-slate-600">
+                                        <th class="p-3">Customer Name</th>
+                                        <th class="p-3">Bottles Given</th>
+                                        <th class="p-3">Returned</th>
+                                        <th class="p-3">Bottle Balance</th>
+                                        <th class="p-3">Security Deposit</th>
+                                        <th class="p-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bottle-customer-table" class="divide-y"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: DELIVERY MANAGEMENT -->
+                <div id="view-deliveries" class="hidden space-y-4 fade-in">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-4 rounded-2xl border shadow-sm">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900">🚚 Delivery Management</h2>
+                            <p class="text-xs text-slate-500">Statuses: Pending, Assigned, Out for Delivery, Delivered, Failed, Cancelled.</p>
+                        </div>
+                        <div class="flex gap-2"><button onclick="window.deleteAllDeliveries()" class="bg-red-50 text-red-700 border border-red-200 font-bold px-3 py-2 rounded-xl text-xs">🗑️ Delete All</button><button id="create-delivery-btn" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs hover:bg-blue-700 shadow-sm">+ Create Delivery</button></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-3">
+                            <h3 class="font-bold text-sm text-slate-800">Drivers List</h3>
+                            <div class="flex gap-2">
+                                <input type="text" id="new-driver-name" placeholder="Driver name..." class="w-full p-2 border rounded-xl text-xs">
+                                <button onclick="window.deleteAllDrivers()" class="px-3 py-2 bg-red-50 text-red-700 border border-red-200 font-bold text-xs rounded-xl">Delete All</button><button id="add-driver-btn" class="px-3 py-2 bg-slate-800 text-white font-bold text-xs rounded-xl">Add</button>
+                            </div>
+                            <div id="driver-list" class="space-y-1 text-xs font-semibold"></div>
+                        </div>
+
+                        <div class="md:col-span-2 bg-white p-4 rounded-2xl border shadow-sm">
+                            <h3 class="font-bold text-sm text-slate-800 mb-3">Delivery Queue</h3>
+                            <div id="delivery-orders-list" class="space-y-2 max-h-[500px] overflow-y-auto"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 6: AUTOMATIC CUSTOMER REMINDERS -->
+                <div id="view-reminders" class="hidden space-y-4 fade-in">
+                    <div class="bg-white p-4 rounded-2xl border shadow-sm">
+                        <h2 class="text-2xl font-black text-slate-900">🔔 Automatic Customer Reminders</h2>
+                        <p class="text-xs text-slate-500">Smart system alerts for reorders, overdue payments, bottle collection & inactive customers.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="reminders-container"></div>
+                </div>
+
+                <!-- SECTION 7: SUBSCRIPTION / REGULAR DELIVERY -->
+                <div id="view-subscriptions" class="hidden space-y-4 fade-in">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-4 rounded-2xl border shadow-sm">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900">📅 Subscription & Regular Deliveries</h2>
+                            <p class="text-xs text-slate-500">Auto-recurring orders (Daily, Alternate days, Weekly) with status tracking.</p>
+                        </div>
+                        <div class="flex gap-2"><button onclick="window.deleteAllSubscriptions()" class="bg-red-50 text-red-700 border border-red-200 font-bold px-3 py-2 rounded-xl text-xs">🗑️ Delete All</button><button id="add-subscription-btn" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-xs hover:bg-blue-700 shadow-sm">+ New Subscription</button></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-2xl border shadow-sm lg:col-span-1">
+                            <h3 class="font-bold text-sm text-slate-900 mb-3">Active Customer Subscriptions</h3>
+                            <div id="subscription-list" class="space-y-2 max-h-[500px] overflow-y-auto"></div>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border shadow-sm lg:col-span-2">
+                            <h3 class="font-bold text-sm text-slate-900 mb-3">Auto-Generated Upcoming Deliveries Schedule</h3>
+                            <div id="subscription-schedule-table" class="overflow-x-auto"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 8: INVENTORY / STOCK -->
+                <div id="view-inventory" class="hidden space-y-4 fade-in">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-4 rounded-2xl border shadow-sm">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900">📦 Inventory & Stock Control</h2>
+                            <p class="text-xs text-slate-500">Track water products, shop bottles, RO membranes, filters, pumps, caps & seals.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="flex gap-2"><button onclick="window.deleteAllInventory()" class="bg-red-50 text-red-700 border border-red-200 font-bold px-3 py-2 rounded-xl text-xs">🗑️ Delete All</button><button id="add-stock-item-btn" class="bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs">+ Add New Stock Item</button></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border shadow-sm">
+                        <h3 class="font-bold text-sm text-slate-900 mb-3">Stock Overview & Low-Stock Warnings</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="border-b bg-slate-50 font-extrabold text-slate-600">
+                                        <th class="p-3">Item Category</th>
+                                        <th class="p-3">Item Name</th>
+                                        <th class="p-3">Quantity</th>
+                                        <th class="p-3">Min Alert Level</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventory-table-body" class="divide-y"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 5: ADMIN DASHBOARD -->
+                <div id="view-dashboard" class="hidden space-y-6 fade-in">
+                    <h2 class="text-2xl font-black text-slate-900">Admin Dashboard</h2>
+                    <div id="stats-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white p-5 rounded-2xl border shadow-sm">
+                            <h3 class="text-base font-bold text-slate-900 mb-3">Revenue History (6 Months)</h3>
+                            <div id="revenue-chart-container" class="h-60"></div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border shadow-sm">
+                            <h3 class="text-base font-bold text-slate-900 mb-3">Today's Transactions</h3>
+                            <div id="todays-deliveries-list" class="space-y-2 h-60 overflow-y-auto"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EXPENSES -->
+                <div id="view-expenses" class="hidden space-y-4 fade-in">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2"><h2 class="text-2xl font-black text-slate-900">Expense Management</h2><button onclick="window.deleteAllExpenses()" class="bg-red-50 text-red-700 border border-red-200 font-bold px-3 py-2 rounded-xl text-xs">🗑️ Delete All Expenses</button></div>
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm">
+                        <h3 class="text-sm font-bold text-slate-900 mb-3">Add New Expense</h3>
+                        <form id="add-expense-form" class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+                            <div><label class="block text-xs font-semibold mb-1">Date</label><input type="date" id="expense-date" required class="w-full p-2 border rounded-xl text-xs"></div>
+                            <div><label class="block text-xs font-semibold mb-1">Category</label><input type="text" id="expense-category" required placeholder="e.g. Fuel, Salaries" class="w-full p-2 border rounded-xl text-xs"></div>
+                            <div><label class="block text-xs font-semibold mb-1">Description</label><input type="text" id="expense-description" required placeholder="Plant maintenance" class="w-full p-2 border rounded-xl text-xs"></div>
+                            <div><label class="block text-xs font-semibold mb-1">Amount (Rs)</label><input type="number" id="expense-amount" required min="1" class="w-full p-2 border rounded-xl text-xs"></div>
+                            <div class="md:col-span-4 flex justify-end"><button type="submit" class="bg-slate-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs">Add Expense Record</button></div>
+                        </form>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm">
+                        <h3 class="text-sm font-bold text-slate-900 mb-3">Expense History Log</h3>
+                        <div id="expense-list" class="space-y-1.5 max-h-80 overflow-y-auto"></div>
+                    </div>
+                </div>
+
+                <!-- BILLING CENTER -->
+                <div id="view-billing" class="hidden space-y-4 fade-in">
+                    <h2 class="text-2xl font-black text-slate-900">Billing Center</h2>
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                            <div><label class="block text-xs font-semibold mb-1">Select Customer</label><select id="billing-customer-select" class="w-full p-2 border rounded-xl text-xs"></select></div>
+                            <div><label class="block text-xs font-semibold mb-1">Select Month</label><select id="billing-month-select" class="w-full p-2 border rounded-xl text-xs"></select></div>
+                            <button id="generate-bill-btn" class="bg-blue-600 text-white font-bold py-2 rounded-xl text-xs hover:bg-blue-700">Generate Invoice</button>
+                        </div>
+                    </div>
+                    <div id="bill-output" class="hidden bg-white rounded-2xl border shadow-sm"></div>
+                </div>
+
+                <!-- SETTINGS -->
+                <div id="view-settings" class="hidden space-y-4 fade-in">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2"><h2 class="text-2xl font-black text-slate-900">Settings</h2><button type="button" onclick="window.deleteEverything()" class="bg-red-600 text-white font-black px-4 py-2.5 rounded-xl text-xs hover:bg-red-700 shadow-sm">⚠️ DELETE ALL DATA</button></div>
+                    <div class="bg-red-50 border border-red-200 p-4 rounded-2xl"><p class="text-xs font-bold text-red-800">Danger Zone</p><p class="text-[11px] text-red-700 mt-1">Delete all customers, sales, deliveries, subscriptions, expenses, inventory, drivers, held sales, bottle records and business settings. This cannot be undone.</p></div>
+                    <form id="settings-form" class="space-y-4 bg-white p-5 rounded-2xl border shadow-sm">
+                        <h3 class="text-base font-bold">Business Info</h3>
+                        <div class="grid md:grid-cols-2 gap-3">
+                            <div><label class="block text-xs font-semibold mb-1">Business Name / Owner</label><input type="text" id="owner-name" class="w-full p-2 border rounded-xl text-xs"></div>
+                            <div><label class="block text-xs font-semibold mb-1">Easypaisa / Jazzcash Phone</label><input type="tel" id="payment-mobile" class="w-full p-2 border rounded-xl text-xs"></div>
+                            <div><label class="block text-xs font-semibold mb-1">Bank Name</label><input type="text" id="payment-bank" class="w-full p-2 border rounded-xl text-xs"></div>
+                            <div><label class="block text-xs font-semibold mb-1">Bank IBAN</label><input type="text" id="payment-iban" class="w-full p-2 border rounded-xl text-xs"></div>
+                        </div>
+                        <div class="flex justify-end pt-2"><button type="submit" class="bg-slate-800 text-white font-bold px-6 py-2.5 rounded-xl text-xs">Save Settings</button></div>
+                    </form>
+                </div>
+            </main>
+        </div>
+
+        <!-- Mobile Navigation Bottom Bar -->
+        <div id="pos-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t pos-bottom-nav shadow-lg">
+            <div class="grid grid-cols-5 gap-1 p-1 text-center">
+                <button data-pos-nav="pos" class="py-1.5 rounded-xl text-[10px] font-bold text-slate-700 hover:bg-slate-100">🛒 POS</button>
+                <button data-pos-nav="customers" class="py-1.5 rounded-xl text-[10px] font-bold text-slate-700 hover:bg-slate-100">👥 Clients</button>
+                <button data-pos-nav="bottles" class="py-1.5 rounded-xl text-[10px] font-bold text-slate-700 hover:bg-slate-100">🔵 Bottles</button>
+                <button data-pos-nav="reminders" class="py-1.5 rounded-xl text-[10px] font-bold text-slate-700 hover:bg-slate-100">🔔 Alerts</button>
+                <button data-pos-nav="subscriptions" class="py-1.5 rounded-xl text-[10px] font-bold text-slate-700 hover:bg-slate-100">📅 Subs</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Modal Dialog -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity"></div>
+    <div id="generic-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white p-5 rounded-2xl shadow-2xl w-11/12 max-w-md hidden opacity-0 scale-95 transition-all max-h-[90vh] overflow-y-auto"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const STORAGE_KEY = 'dropure_water_suite_v4';
+            const PASSWORD = 'Dropure123';
+
+            let state = {
+                customers: [],
+                expenses: [],
+                sales: [],
+                deliveries: [],
+                subscriptions: [],
+                inventory: [
+                    { id: 'inv_1', category: 'Water products', name: '5L Bottle Refill', qty: 100, min: 20 },
+                    { id: 'inv_2', category: 'Water products', name: '10L Bottle Refill', qty: 80, min: 15 },
+                    { id: 'inv_3', category: 'Water products', name: '19L Bottle Refill', qty: 150, min: 30 },
+                    { id: 'inv_4', category: 'Bottles', name: '19L Empty Bottles', qty: 45, min: 10 },
+                    { id: 'inv_5', category: 'Bottles', name: '19L Full Bottles', qty: 120, min: 20 },
+                    { id: 'inv_6', category: 'RO/filter materials', name: 'RO Membranes', qty: 5, min: 2 },
+                    { id: 'inv_7', category: 'RO/filter materials', name: 'Sediment Filters', qty: 12, min: 5 },
+                    { id: 'inv_8', category: 'RO/filter materials', name: 'Carbon Filters', qty: 8, min: 4 },
+                    { id: 'inv_9', category: 'RO/filter materials', name: 'UV Lamps', qty: 3, min: 2 },
+                    { id: 'inv_10', category: 'RO/filter materials', name: 'High Pressure Pumps', qty: 2, min: 1 },
+                    { id: 'inv_11', category: 'RO/filter materials', name: '19L Bottle Caps', qty: 500, min: 100 },
+                    { id: 'inv_12', category: 'RO/filter materials', name: 'Bottle Neck Seals', qty: 600, min: 150 }
+                ],
+                drivers: ['Driver Ali', 'Driver Tariq'],
+                heldSales: [],
+                cart: [],
+                shopBottles: { full: 120, empty: 40, damaged: 2, missing: 1 },
+                settings: { ownerName: 'Dropure Water', paymentMobile: '', paymentBank: '', paymentIban: '' },
+                activeView: 'pos'
+            };
+
+            const dom = {
+                lockScreen: document.getElementById('lock-screen'),
+                passwordForm: document.getElementById('password-form'),
+                passwordInput: document.getElementById('password-input'),
+                passwordError: document.getElementById('password-error'),
+                appContainer: document.getElementById('app-container'),
+                navBtns: document.querySelectorAll('.nav-btn'),
+                views: {
+                    pos: document.getElementById('view-pos'),
+                    customers: document.getElementById('view-customers'),
+                    bottles: document.getElementById('view-bottles'),
+                    deliveries: document.getElementById('view-deliveries'),
+                    reminders: document.getElementById('view-reminders'),
+                    subscriptions: document.getElementById('view-subscriptions'),
+                    inventory: document.getElementById('view-inventory'),
+                    dashboard: document.getElementById('view-dashboard'),
+                    expenses: document.getElementById('view-expenses'),
+                    billing: document.getElementById('view-billing'),
+                    settings: document.getElementById('view-settings')
+                },
+                pos: {
+                    customerSelect: document.getElementById('pos-customer-select'),
+                    holdBtn: document.getElementById('pos-hold-btn'),
+                    resumeBtn: document.getElementById('pos-resume-btn'),
+                    heldCount: document.getElementById('held-count'),
+                    cartItems: document.getElementById('pos-cart-items'),
+                    clearCart: document.getElementById('pos-clear-cart'),
+                    subtotal: document.getElementById('cart-subtotal'),
+                    discount: document.getElementById('cart-discount'),
+                    delivery: document.getElementById('cart-delivery'),
+                    total: document.getElementById('cart-total'),
+                    paymentMethod: document.getElementById('cart-payment-method'),
+                    splitFields: document.getElementById('split-payment-fields'),
+                    splitCash: document.getElementById('split-cash'),
+                    splitOnline: document.getElementById('split-online'),
+                    amountReceived: document.getElementById('cart-amount-received'),
+                    changeReturn: document.getElementById('cart-change-return'),
+                    checkoutBtn: document.getElementById('pos-checkout-btn'),
+                    todayTotal: document.getElementById('pos-today-total'),
+                    recentSales: document.getElementById('pos-recent-sales')
+                },
+                customers: {
+                    list: document.getElementById('customer-list'),
+                    search: document.getElementById('search-customer'),
+                    addBtn: document.getElementById('add-customer-btn')
+                },
+                bottles: {
+                    full: document.getElementById('shop-full-bottles'),
+                    empty: document.getElementById('shop-empty-bottles'),
+                    damaged: document.getElementById('shop-damaged-bottles'),
+                    missing: document.getElementById('shop-missing-bottles'),
+                    saveBtn: document.getElementById('save-shop-bottles-btn'),
+                    table: document.getElementById('bottle-customer-table')
+                },
+                deliveries: {
+                    createBtn: document.getElementById('create-delivery-btn'),
+                    driverName: document.getElementById('new-driver-name'),
+                    addDriverBtn: document.getElementById('add-driver-btn'),
+                    driverList: document.getElementById('driver-list'),
+                    ordersList: document.getElementById('delivery-orders-list')
+                },
+                modals: {
+                    backdrop: document.getElementById('modal-backdrop'),
+                    box: document.getElementById('generic-modal')
+                }
+            };
+
+            const data = {
+                load: () => {
+                    const saved = localStorage.getItem(STORAGE_KEY);
+                    if (saved) {
+                        try { state = { ...state, ...JSON.parse(saved) }; } catch (e) { console.error(e); }
+                    } else {
+                        data.seedData();
+                    }
+                },
+                save: () => { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); },
+                seedData: () => {
+                    state.customers = [
+                        {
+                            id: 'cust_101', name: 'Ahmed Khan', phone: '03001234567', whatsapp: '03001234567',
+                            address: 'House #45, Block B', area: 'Gulberg', type: 'Home delivery',
+                            totalPurchases: 1800, totalPaid: 1200, balance: 600, bottleBalance: 3,
+                            bottlesGiven: 8, bottlesReturned: 5, depositAmount: 1500, depositPaid: 1500,
+                            lastOrder: '2026-10-05', lastDelivery: '2026-10-05', orderFrequencyDays: 3, notes: 'Prefers morning delivery'
+                        }
+                    ];
+                    state.subscriptions = [
+                        {
+                            id: 'sub_1', customerId: 'cust_101', customerName: 'Ahmed Khan',
+                            plan: 'Daily', qty: 2, product: '19L Bottle', startDate: '2026-10-08', status: 'Active'
+                        }
+                    ];
+                    data.save();
+                }
+            };
+
+            const logic = {
+                calculateCart: () => {
+                    const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                    const discount = parseFloat(dom.pos.discount.value) || 0;
+                    const delivery = parseFloat(dom.pos.delivery.value) || 0;
+                    const total = Math.max(0, subtotal - discount + delivery);
+                    const received = parseFloat(dom.pos.amountReceived.value) || 0;
+                    const change = Math.max(0, received - total);
+                    return { subtotal, discount, delivery, total, received, change };
+                },
+                addCartItem: (name, price, size = null) => {
+                    const existing = state.cart.find(i => i.name === name);
+                    if (existing) { existing.qty++; }
+                    else { state.cart.push({ id: Date.now(), name, price, qty: 1, size }); }
+                    ui.renderCart();
+                },
+                completeSale: () => {
+                    const calc = logic.calculateCart();
+                    if (state.cart.length === 0) { alert('Cart is empty!'); return; }
+
+                    const custId = dom.pos.customerSelect.value;
+                    const customer = state.customers.find(c => c.id === custId);
+                    const method = dom.pos.paymentMethod.value;
+
+                    const saleRecord = {
+                        id: 'sale_' + Date.now(),
+                        date: new Date().toISOString(),
+                        customerName: customer ? customer.name : 'Walk-in',
+                        customerId: custId || null,
+                        items: [...state.cart],
+                        subtotal: calc.subtotal,
+                        discount: calc.discount,
+                        deliveryCharge: calc.delivery,
+                        total: calc.total,
+                        method
+                    };
+
+                    state.sales.push(saleRecord);
+
+                    if (customer) {
+                        customer.totalPurchases += calc.total;
+                        if (method === 'Credit / Udhaar') {
+                            customer.balance += calc.total;
+                        } else {
+                            customer.totalPaid += calc.total;
+                        }
+
+                        let bottles19lSold = state.cart.filter(i => i.size == 19).reduce((sum, i) => sum + i.qty, 0);
+                        if (bottles19lSold > 0) {
+                            customer.bottlesGiven += bottles19lSold;
+                            customer.bottleBalance = customer.bottlesGiven - customer.bottlesReturned;
+                        }
+                        customer.lastOrder = new Date().toISOString().split('T')[0];
+                    }
+
+                    // Auto stock deduction
+                    state.cart.forEach(item => {
+                        const invItem = state.inventory.find(i => i.name.toLowerCase().includes(item.name.toLowerCase()));
+                        if (invItem) invItem.qty = Math.max(0, invItem.qty - item.qty);
+                    });
+
+                    data.save();
+                    ui.showReceiptModal(saleRecord);
+                    state.cart = [];
+                    dom.pos.discount.value = 0;
+                    dom.pos.delivery.value = 0;
+                    dom.pos.amountReceived.value = 0;
+                    ui.render();
+                },
+                sendWhatsApp: (phone, message) => {
+                    if (!phone) { alert('No phone number provided!'); return; }
+                    const cleanPhone = phone.replace(/[^0-9]/g, '');
+                    const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+                    window.open(url, '_blank');
+                }
+            };
+
+            const ui = {
+                render: () => {
+                    ui.updateViews();
+                    ui.populateCustomerDropdowns();
+                    if (state.activeView === 'pos') ui.renderPOS();
+                    if (state.activeView === 'customers') ui.renderCustomers();
+                    if (state.activeView === 'bottles') ui.renderBottles();
+                    if (state.activeView === 'deliveries') ui.renderDeliveries();
+                    if (state.activeView === 'reminders') ui.renderReminders();
+                    if (state.activeView === 'subscriptions') ui.renderSubscriptions();
+                    if (state.activeView === 'inventory') ui.renderInventory();
+                    if (state.activeView === 'dashboard') ui.renderDashboard();
+                    if (state.activeView === 'expenses') ui.renderExpenses();
+                    if (state.activeView === 'billing') ui.renderBilling();
+                },
+                updateViews: () => {
+                    Object.keys(dom.views).forEach(k => {
+                        if (dom.views[k]) dom.views[k].classList.add('hidden');
+                    });
+                    if (dom.views[state.activeView]) dom.views[state.activeView].classList.remove('hidden');
+
+                    dom.navBtns.forEach(btn => {
+                        const view = btn.id.replace('nav-', '');
+                        btn.classList.toggle('active', view === state.activeView);
+                    });
+                },
+                populateCustomerDropdowns: () => {
+                    let options = '<option value="">👤 Walk-in Customer</option>';
+                    state.customers.forEach(c => {
+                        options += `<option value="${c.id}">${c.name} (${c.area || 'No Area'}) - Bal: Rs ${c.balance}</option>`;
+                    });
+                    dom.pos.customerSelect.innerHTML = options;
+
+                    const billingSelect = document.getElementById('billing-customer-select');
+                    if (billingSelect) billingSelect.innerHTML = options;
+                },
+                renderPOS: () => {
+                    dom.pos.heldCount.textContent = state.heldSales.length;
+                    ui.renderCart();
+
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const todaysSales = state.sales.filter(s => s.date.startsWith(todayStr));
+                    const totalToday = todaysSales.reduce((sum, s) => sum + s.total, 0);
+
+                    dom.pos.todayTotal.textContent = `Rs ${totalToday.toLocaleString()}`;
+                    dom.pos.recentSales.innerHTML = todaysSales.length ? todaysSales.map(s => `
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl border">
+                            <div>
+                                <span class="font-bold text-slate-800">${s.customerName}</span>
+                                <span class="text-[10px] text-slate-500 block">${new Date(s.date).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} • ${s.method}</span>
+                            </div>
+                            <div class="flex items-center gap-2"><span class="font-bold text-emerald-600">Rs ${s.total}</span><button onclick="window.deleteSale('${s.id}')" class="px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded-lg font-bold text-[10px]">🗑️</button></div>
+                        </div>
+                    `).reverse().join('') : '<p class="text-slate-400 text-center py-4">No sales recorded today.</p>';
+                },
+                renderCart: () => {
+                    if (state.cart.length === 0) {
+                        dom.pos.cartItems.innerHTML = '<p class="text-center text-slate-400 py-8 text-xs">Cart is empty. Tap products to add.</p>';
+                    } else {
+                        dom.pos.cartItems.innerHTML = state.cart.map(item => `
+                            <div class="flex items-center justify-between bg-slate-50 p-2 rounded-xl border text-xs">
+                                <div>
+                                    <p class="font-bold text-slate-800">${item.name}</p>
+                                    <p class="text-[10px] text-slate-500">Rs ${item.price} each</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="flex items-center border rounded-lg bg-white">
+                                        <button onclick="window.changeCartQty(${item.id}, -1)" class="px-2 py-0.5 font-bold text-slate-600 hover:bg-slate-100 rounded-l">-</button>
+                                        <span class="px-2 font-bold">${item.qty}</span>
+                                        <button onclick="window.changeCartQty(${item.id}, 1)" class="px-2 py-0.5 font-bold text-slate-600 hover:bg-slate-100 rounded-r">+</button>
+                                    </div>
+                                    <span class="font-bold text-slate-900 w-12 text-right">Rs ${item.price * item.qty}</span>
+                                    <button onclick="window.removeCartItem(${item.id})" class="text-red-500 hover:text-red-700 px-1 font-bold">×</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+
+                    const calc = logic.calculateCart();
+                    dom.pos.subtotal.textContent = `Rs ${calc.subtotal}`;
+                    dom.pos.total.textContent = `Rs ${calc.total}`;
+                    dom.pos.changeReturn.textContent = `Rs ${calc.change}`;
+                },
+                renderCustomers: () => {
+                    const search = dom.customers.search.value.toLowerCase();
+                    const filtered = state.customers.filter(c => 
+                        c.name.toLowerCase().includes(search) || 
+                        c.phone.includes(search) || 
+                        (c.area && c.area.toLowerCase().includes(search))
+                    );
+
+                    dom.customers.list.innerHTML = filtered.map(c => `
+                        <div class="bg-white border rounded-2xl p-4 shadow-sm space-y-3 relative">
+                            <div class="flex justify-between items-start border-b pb-2">
+                                <div>
+                                    <span class="text-[10px] font-extrabold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">${c.type || 'Home delivery'}</span>
+                                    <h3 class="font-black text-base text-slate-900 mt-1">${c.name}</h3>
+                                    <p class="text-xs text-slate-500">📍 ${c.address || 'No address'}, ${c.area || ''}</p>
+                                    <p class="text-xs text-slate-500">📞 ${c.phone} | WA: ${c.whatsapp || c.phone}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[10px] text-slate-400 block font-bold">Outstanding Balance</span>
+                                    <span class="font-black text-sm ${c.balance > 0 ? 'text-red-600' : 'text-emerald-600'}">Rs ${c.balance}</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-50 p-2.5 rounded-xl border">
+                                <div><span class="text-slate-500">Bottle Balance:</span> <b class="text-blue-600">${c.bottleBalance || 0} bottles</b></div>
+                                <div><span class="text-slate-500">Deposit Paid:</span> <b>Rs ${c.depositPaid || 0}</b></div>
+                                <div><span class="text-slate-500">Total Purchases:</span> <b>Rs ${c.totalPurchases || 0}</b></div>
+                                <div><span class="text-slate-500">Total Paid:</span> <b>Rs ${c.totalPaid || 0}</b></div>
+                            </div>
+
+                            ${c.notes ? `<p class="text-xs bg-amber-50 text-amber-800 p-2 rounded-xl border border-amber-200 font-medium">Notes: ${c.notes}</p>` : ''}
+
+                            <div class="grid grid-cols-3 gap-1.5 pt-1">
+                                <button onclick="window.location.href='tel:${c.phone}'" class="py-1.5 bg-blue-50 text-blue-700 font-bold text-xs rounded-xl hover:bg-blue-100 flex items-center justify-center gap-1">📞 Call</button>
+                                <button onclick="window.sendCustomerWA('${c.id}')" class="py-1.5 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-xl hover:bg-emerald-100 flex items-center justify-center gap-1">💬 WhatsApp</button>
+                                <button onclick="window.quickOrderForCustomer('${c.id}')" class="py-1.5 bg-purple-50 text-purple-700 font-bold text-xs rounded-xl hover:bg-purple-100 flex items-center justify-center gap-1">➕ New order</button>
+                                <button onclick="window.receiveCustomerPayment('${c.id}')" class="py-1.5 bg-amber-50 text-amber-700 font-bold text-xs rounded-xl hover:bg-amber-100 flex items-center justify-center gap-1">💰 Receive pay</button>
+                                <button onclick="window.viewCustomerLedger('${c.id}')" class="py-1.5 bg-slate-100 text-slate-800 font-bold text-xs rounded-xl hover:bg-slate-200 flex items-center justify-center gap-1">📋 View ledger</button>
+                                <button onclick="window.createCustomerDelivery('${c.id}')" class="py-1.5 bg-sky-50 text-sky-700 font-bold text-xs rounded-xl hover:bg-sky-100 flex items-center justify-center gap-1">🚚 Create deliv</button>
+                                <button onclick="window.deleteCustomer('${c.id}')" class="py-1.5 bg-red-50 text-red-700 font-bold text-xs rounded-xl hover:bg-red-100 flex items-center justify-center gap-1">🗑️ Delete</button>
+                            </div>
+                        </div>
+                    `).join('');
+                },
+                renderBottles: () => {
+                    dom.bottles.full.value = state.shopBottles.full;
+                    dom.bottles.empty.value = state.shopBottles.empty;
+                    dom.bottles.damaged.value = state.shopBottles.damaged;
+                    dom.bottles.missing.value = state.shopBottles.missing;
+
+                    dom.bottles.table.innerHTML = state.customers.map(c => `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-bold text-slate-900">${c.name}</td>
+                            <td class="p-3">${c.bottlesGiven || 0}</td>
+                            <td class="p-3">${c.bottlesReturned || 0}</td>
+                            <td class="p-3"><span class="font-extrabold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">${c.bottleBalance || 0} bottles</span></td>
+                            <td class="p-3">
+                                <div><span class="font-bold">Rs ${c.depositPaid || 0}</span> / <span class="text-slate-400">Rs ${c.depositAmount || 0}</span></div>
+                            </td>
+                            <td class="p-3 text-right">
+                                <button onclick="window.adjustCustomerBottles('${c.id}')" class="px-3 py-1 bg-slate-800 text-white rounded-xl text-[11px] font-bold hover:bg-slate-900">Update Bottles & Deposit</button>
+                                <button onclick="window.deleteCustomer('${c.id}')" class="px-3 py-1 bg-red-50 text-red-700 border border-red-200 rounded-xl text-[11px] font-bold">Delete Customer</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                },
+                renderDeliveries: () => {
+                    dom.deliveries.driverList.innerHTML = state.drivers.map(d => `<span class="inline-flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded-lg border mr-1 mb-1">${d}<button onclick="window.deleteDriver(${JSON.stringify(d)})" class="text-red-600 font-black" title="Delete driver">×</button></span>`).join('');
+
+                    dom.deliveries.ordersList.innerHTML = state.deliveries.length ? state.deliveries.map(d => `
+                        <div class="bg-slate-50 p-3 rounded-2xl border space-y-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="font-black text-sm text-slate-900">${d.customerName}</span>
+                                    <p class="text-xs text-slate-500">📍 ${d.address} | 📞 ${d.phone}</p>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-full font-black text-[11px] ${
+                                    d.status === '🟡 Pending' ? 'bg-amber-100 text-amber-800' :
+                                    d.status === '🔵 Assigned' ? 'bg-blue-100 text-blue-800' :
+                                    d.status === '🟣 Out for Delivery' ? 'bg-purple-100 text-purple-800' :
+                                    d.status === '🟢 Delivered' ? 'bg-emerald-100 text-emerald-800' :
+                                    d.status === '🔴 Failed' ? 'bg-red-100 text-red-800' : 'bg-slate-200 text-slate-700'
+                                }">${d.status}</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2 border-t pt-2">
+                                <span>Order: <b>${d.quantity}x ${d.product}</b> | Total: <b>Rs ${d.amount}</b> (${d.paymentStatus || 'Unpaid'})</span>
+                                <div class="flex items-center gap-1">
+                                    <select onchange="window.updateDeliveryStatus('${d.id}', this.value)" class="text-xs border rounded-xl p-1 font-bold bg-white">
+                                        <option value="🟡 Pending" ${d.status==='🟡 Pending'?'selected':''}>🟡 Pending</option>
+                                        <option value="🔵 Assigned" ${d.status==='🔵 Assigned'?'selected':''}>🔵 Assigned</option>
+                                        <option value="🟣 Out for Delivery" ${d.status==='🟣 Out for Delivery'?'selected':''}>🟣 Out for Delivery</option>
+                                        <option value="🟢 Delivered" ${d.status==='🟢 Delivered'?'selected':''}>🟢 Delivered</option>
+                                        <option value="🔴 Failed" ${d.status==='🔴 Failed'?'selected':''}>🔴 Failed</option>
+                                        <option value="⚫ Cancelled" ${d.status==='⚫ Cancelled'?'selected':''}>⚫ Cancelled</option>
+                                    </select>
+                                    <select onchange="window.assignDriver('${d.id}', this.value)" class="text-xs border rounded-xl p-1 font-bold bg-white">
+                                        <option value="">Assign Driver</option>
+                                        ${state.drivers.map(drv => `<option value="${drv}" ${d.driver===drv?'selected':''}>${drv}</option>`).join('')}
+                                    </select>
+                                    <button onclick="window.deleteDelivery('${d.id}')" class="px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded-xl font-bold">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).reverse().join('') : '<p class="text-center text-slate-400 py-8 text-xs">No delivery orders created.</p>';
+                },
+                renderReminders: () => {
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    let alerts = [];
+
+                    state.customers.forEach(c => {
+                        // Reorder probability
+                        if (c.lastOrder) {
+                            const daysSince = Math.floor((new Date(todayStr) - new Date(c.lastOrder)) / (1000 * 60 * 60 * 24));
+                            const freq = c.orderFrequencyDays || 3;
+                            if (daysSince >= freq) {
+                                alerts.push({
+                                    type: 'water',
+                                    title: `🔔 ${c.name} may need water today`,
+                                    desc: `Last order was ${daysSince} days ago (usually orders every ${freq} days).`,
+                                    custId: c.id
+                                });
+                            } else if (daysSince >= 14) {
+                                alerts.push({
+                                    type: 'inactive',
+                                    title: `💤 Regular customer inactive: ${c.name}`,
+                                    desc: `No orders recorded in ${daysSince} days.`,
+                                    custId: c.id
+                                });
+                            }
+                        }
+
+                        // Payment due
+                        if (c.balance > 0) {
+                            alerts.push({
+                                type: 'payment',
+                                title: `💰 Payment due: ${c.name}`,
+                                desc: `Outstanding balance: Rs ${c.balance}.`,
+                                custId: c.id
+                            });
+                        }
+
+                        // Bottle balance alert
+                        if (c.bottleBalance >= 5) {
+                            alerts.push({
+                                type: 'bottle',
+                                title: `🧴 Bottle balance high: ${c.name}`,
+                                desc: `Holding ${c.bottleBalance} unreturned bottles.`,
+                                custId: c.id
+                            });
+                        }
+                    });
+
+                    // Subscriptions renewal/due
+                    state.subscriptions.forEach(s => {
+                        alerts.push({
+                            type: 'sub',
+                            title: `🔄 Subscription active: ${s.customerName}`,
+                            desc: `${s.plan} delivery scheduled for ${s.qty}x ${s.product}.`,
+                            custId: s.customerId
+                        });
+                    });
+
+                    const container = document.getElementById('reminders-container');
+                    container.innerHTML = alerts.length ? alerts.map(a => `
+                        <div class="bg-white border rounded-2xl p-4 shadow-sm space-y-2 border-l-4 ${
+                            a.type === 'water' ? 'border-l-blue-500' :
+                            a.type === 'payment' ? 'border-l-red-500' :
+                            a.type === 'bottle' ? 'border-l-amber-500' : 'border-l-purple-500'
+                        }">
+                            <h4 class="font-bold text-sm text-slate-900">${a.title}</h4>
+                            <p class="text-xs text-slate-500">${a.desc}</p>
+                            <div class="flex gap-2 pt-2">
+                                <button onclick="window.quickOrderForCustomer('${a.custId}')" class="px-3 py-1.5 bg-blue-50 text-blue-700 font-bold text-xs rounded-xl hover:bg-blue-100">Create Order</button>
+                                <button onclick="window.sendCustomerWA('${a.custId}')" class="px-3 py-1.5 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-xl hover:bg-emerald-100">Send WhatsApp</button>
+                            </div>
+                        </div>
+                    `).join('') : '<p class="text-slate-400 col-span-full text-center py-10 text-xs">No pending customer reminders.</p>';
+                },
+                renderSubscriptions: () => {
+                    const listContainer = document.getElementById('subscription-list');
+                    listContainer.innerHTML = state.subscriptions.length ? state.subscriptions.map(s => `
+                        <div class="bg-slate-50 p-3 rounded-2xl border space-y-1 text-xs">
+                            <div class="flex justify-between items-center font-bold text-slate-900">
+                                <span>${s.customerName}</span>
+                                <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-[10px]">${s.plan}</span>
+                            </div>
+                            <p class="text-slate-500">${s.qty}x ${s.product} | Starts: ${s.startDate}</p>
+                            <button onclick="window.deleteSubscription('${s.id}')" class="mt-2 w-full py-1.5 bg-red-50 text-red-700 border border-red-200 rounded-xl font-bold text-[11px]">🗑️ Delete Subscription</button>
+                        </div>
+                    `).join('') : '<p class="text-slate-400 text-center py-6 text-xs">No active subscriptions.</p>';
+
+                    // Auto generate schedule table example
+                    const scheduleContainer = document.getElementById('subscription-schedule-table');
+                    const scheduleData = [
+                        { date: 'Oct 8', cust: 'Ahmed Khan', qty: '2 x 19L', status: '🟢 Delivered' },
+                        { date: 'Oct 9', cust: 'Ahmed Khan', qty: '2 x 19L', status: '🟡 Pending' },
+                        { date: 'Oct 10', cust: 'Ahmed Khan', qty: '2 x 19L', status: '🟡 Pending' }
+                    ];
+
+                    scheduleContainer.innerHTML = `
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b bg-slate-50 font-extrabold text-slate-600">
+                                    <th class="p-2.5">Date</th>
+                                    <th class="p-2.5">Customer</th>
+                                    <th class="p-2.5">Order Quantity</th>
+                                    <th class="p-2.5">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                ${scheduleData.map(row => `
+                                    <tr>
+                                        <td class="p-2.5 font-bold">${row.date}</td>
+                                        <td class="p-2.5">${row.cust}</td>
+                                        <td class="p-2.5">${row.qty}</td>
+                                        <td class="p-2.5"><span class="font-bold">${row.status}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                },
+                renderInventory: () => {
+                    const tableBody = document.getElementById('inventory-table-body');
+                    tableBody.innerHTML = state.inventory.map(item => {
+                        const isLow = item.qty <= item.min;
+                        return `
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-500">${item.category}</td>
+                                <td class="p-3 font-bold text-slate-900">${item.name}</td>
+                                <td class="p-3 font-black text-sm ${isLow ? 'text-red-600' : 'text-slate-800'}">${item.qty}</td>
+                                <td class="p-3 text-slate-500">${item.min}</td>
+                                <td class="p-3">
+                                    <span class="px-2 py-0.5 rounded-full font-bold text-[10px] ${isLow ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">
+                                        ${isLow ? '⚠️ Low Stock' : 'In Stock'}
+                                    </span>
+                                </td>
+                                <td class="p-3 text-right">
+                                    <button onclick="window.adjustInventoryQty('${item.id}')" class="px-3 py-1 bg-slate-800 text-white rounded-xl text-[11px] font-bold">Adjust Stock</button>
+                                    <button onclick="window.deleteInventoryItem('${item.id}')" class="px-3 py-1 bg-red-50 text-red-700 border border-red-200 rounded-xl text-[11px] font-bold ml-1">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                },
+                renderDashboard: () => {
+                    const totalSales = state.sales.reduce((sum, s) => sum + s.total, 0);
+                    const totalExpenses = state.expenses.reduce((sum, e) => sum + e.amount, 0);
+                    const netProfit = totalSales - totalExpenses;
+                    const outstanding = state.customers.reduce((sum, c) => sum + c.balance, 0);
+
+                    document.getElementById('stats-cards').innerHTML = `
+                        <div class="bg-white p-4 rounded-2xl border shadow-sm"><p class="text-xs text-slate-500 font-bold">Total Sales Revenue</p><p class="text-2xl font-black text-blue-600">Rs ${totalSales.toLocaleString()}</p></div>
+                        <div class="bg-white p-4 rounded-2xl border shadow-sm"><p class="text-xs text-slate-500 font-bold">Total Expenses</p><p class="text-2xl font-black text-red-600">Rs ${totalExpenses.toLocaleString()}</p></div>
+                        <div class="bg-white p-4 rounded-2xl border shadow-sm"><p class="text-xs text-slate-500 font-bold">Net Profit</p><p class="text-2xl font-black text-emerald-600">Rs ${netProfit.toLocaleString()}</p></div>
+                        <div class="bg-white p-4 rounded-2xl border shadow-sm"><p class="text-xs text-slate-500 font-bold">Outstanding Udhaar</p><p class="text-2xl font-black text-amber-600">Rs ${outstanding.toLocaleString()}</p></div>
+                    `;
+                },
+                renderExpenses: () => {
+                    document.getElementById('expense-list').innerHTML = state.expenses.length ? state.expenses.map(e => `
+                        <div class="flex justify-between items-center p-2.5 bg-slate-50 border rounded-xl text-xs">
+                            <div><p class="font-bold text-slate-800">${e.description}</p><p class="text-[10px] text-slate-500">${e.category} • ${e.date}</p></div>
+                            <div class="flex items-center gap-2"><span class="font-black text-red-600">Rs ${e.amount}</span><button onclick="window.deleteExpense('${e.id}')" class="px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded-lg font-bold">🗑️</button></div>
+                        </div>
+                    `).reverse().join('') : '<p class="text-center text-slate-400 py-6 text-xs">No expenses recorded.</p>';
+                },
+                renderBilling: () => {
+    const monthSelect = document.getElementById('billing-month-select');
+    if (!monthSelect) return;
+
+    // Generate past 12 months dynamically
+    const months = [];
+    const date = new Date();
+    for (let i = 0; i < 12; i++) {
+        const d = new Date(date.getFullYear(), date.getMonth() - i, 1);
+        const monthLabel = d.toLocaleString('default', { month: 'long', year: 'numeric' });
+        const monthValue = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        months.push(`<option value="${monthValue}">${monthLabel}</option>`);
+    }
+
+    monthSelect.innerHTML = months.join('');
+},
+                showModal: (html) => {
+                    dom.modals.box.innerHTML = html;
+                    dom.modals.backdrop.classList.remove('hidden');
+                    dom.modals.box.classList.remove('hidden');
+                    setTimeout(() => {
+                        dom.modals.backdrop.classList.remove('opacity-0');
+                        dom.modals.box.classList.remove('opacity-0', 'scale-95');
+                    }, 10);
+                },
+                hideModal: () => {
+                    dom.modals.backdrop.classList.add('opacity-0');
+                    dom.modals.box.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => {
+                        dom.modals.backdrop.classList.add('hidden');
+                        dom.modals.box.classList.add('hidden');
+                    }, 200);
+                },
+                showReceiptModal: (sale) => {
+                    const textReceipt = `Thank you for purchasing from Dropure Water.\n\n` +
+                        sale.items.map(i => `${i.name} × ${i.qty} = Rs ${i.price * i.qty}`).join('\n') +
+                        (sale.deliveryCharge ? `\nDelivery = Rs ${sale.deliveryCharge}` : '') +
+                        `\nTotal = Rs ${sale.total}` +
+                        `\nPaid = Rs ${sale.total}` +
+                        `\n\nThank you!`;
+
+                    const html = `
+                        <div class="space-y-3 text-center">
+                            <h3 class="text-lg font-black text-blue-600">Sale Completed!</h3>
+                            <div class="bg-slate-50 p-3 rounded-xl border text-left font-mono text-xs whitespace-pre-wrap">${textReceipt}</div>
+                            <div class="flex gap-2">
+                                <button onclick="window.sendReceiptWA('${sale.customerId}', \`${encodeURIComponent(textReceipt)}\`)" class="flex-1 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs hover:bg-emerald-700">Send WhatsApp Receipt</button>
+                                <button onclick="ui.hideModal()" class="px-4 py-2 bg-slate-200 font-bold rounded-xl text-xs">Close</button>
+                            </div>
+                        </div>
+                    `;
+                    ui.showModal(html);
+                }
+            };
+
+            // Make modal UI/logic available to dynamically generated onclick buttons
+            window.logic = logic;
+            window.ui = ui;
+
+            // Global Actions
+            window.changeCartQty = (id, delta) => {
+                const item = state.cart.find(i => i.id === id);
+                if (item) {
+                    item.qty += delta;
+                    if (item.qty <= 0) state.cart = state.cart.filter(i => i.id !== id);
+                }
+                ui.renderCart();
+            };
+
+            window.removeCartItem = (id) => {
+                state.cart = state.cart.filter(i => i.id !== id);
+                ui.renderCart();
+            };
+
+            window.sendCustomerWA = (id) => {
+                const c = state.customers.find(cust => cust.id === id);
+                if (!c) return;
+                const html = `
+                    <div class="space-y-2 text-left">
+                        <h3 class="font-extrabold text-base mb-3">Customer WhatsApp Messages (${c.name})</h3>
+                        <button onclick="logic.sendWhatsApp('${c.whatsapp || c.phone}', 'Dear ${c.name}, thank you for purchasing from Dropure Water! Your total order amount was cleared. Thank you!')" class="w-full text-left p-2.5 bg-blue-50 border rounded-xl font-bold text-xs text-blue-800">📩 Send receipt</button>
+                        <button onclick="logic.sendWhatsApp('${c.whatsapp || c.phone}', 'Dear ${c.name}, this is a payment reminder from Dropure Water. Your total outstanding balance is Rs ${c.balance}. Please clear your dues at your earliest convenience.')" class="w-full text-left p-2.5 bg-amber-50 border rounded-xl font-bold text-xs text-amber-800">💰 Send payment reminder</button>
+                        <button onclick="logic.sendWhatsApp('${c.whatsapp || c.phone}', 'Dear ${c.name}, your water delivery order is scheduled and out for delivery!')" class="w-full text-left p-2.5 bg-purple-50 border rounded-xl font-bold text-xs text-purple-800">🚚 Send delivery update</button>
+                        <button onclick="logic.sendWhatsApp('${c.whatsapp || c.phone}', 'Dear ${c.name}, your water order has been confirmed by Dropure Water.')" class="w-full text-left p-2.5 bg-emerald-50 border rounded-xl font-bold text-xs text-emerald-800">📋 Send order confirmation</button>
+                        <button onclick="logic.sendWhatsApp('${c.whatsapp || c.phone}', 'Dear ${c.name}, special offer from Dropure Water! Order pure water refills today with fast home delivery.')" class="w-full text-left p-2.5 bg-sky-50 border rounded-xl font-bold text-xs text-sky-800">📢 Send promotional message</button>
+                        <button onclick="ui.hideModal()" class="w-full mt-2 py-2 bg-slate-200 font-bold rounded-xl text-xs">Close</button>
+                    </div>
+                `;
+                ui.showModal(html);
+            };
+
+            window.sendReceiptWA = (custId, encodedReceipt) => {
+                const c = state.customers.find(cust => cust.id === custId);
+                const phone = c ? (c.whatsapp || c.phone) : prompt('Enter WhatsApp Number:');
+                if (phone) {
+                    logic.sendWhatsApp(phone, decodeURIComponent(encodedReceipt));
+                    setTimeout(() => ui.hideModal(), 500);
+                }
+            };
+
+            window.receiveCustomerPayment = (id) => {
+                const c = state.customers.find(cust => cust.id === id);
+                const amount = prompt(`Receive payment from ${c.name} (Outstanding Balance: Rs ${c.balance}):`);
+                if (amount && !isNaN(amount)) {
+                    const paid = parseFloat(amount);
+                    c.totalPaid += paid;
+                    c.balance -= paid;
+                    data.save();
+                    ui.render();
+                    alert('Payment recorded successfully!');
+                }
+            };
+
+            window.quickOrderForCustomer = (id) => {
+                state.activeView = 'pos';
+                ui.render();
+                dom.pos.customerSelect.value = id;
+            };
+
+            window.createCustomerDelivery = (id) => {
+                const c = state.customers.find(cust => cust.id === id);
+                state.deliveries.push({
+                    id: 'del_' + Date.now(),
+                    customerName: c.name,
+                    phone: c.phone,
+                    address: c.address || 'Standard Address',
+                    product: '19L Bottle',
+                    quantity: 2,
+                    amount: 120,
+                    status: '🟡 Pending',
+                    paymentStatus: 'Unpaid',
+                    driver: ''
+                });
+                data.save();
+                state.activeView = 'deliveries';
+                ui.render();
+            };
+
+            window.viewCustomerLedger = (id) => {
+                const c = state.customers.find(cust => cust.id === id);
+                const html = `
+                    <div class="space-y-3">
+                        <h3 class="font-black text-base border-b pb-2">Ledger: ${c.name}</h3>
+                        <div class="text-xs space-y-1">
+                            <p><b>Total Purchases:</b> Rs ${c.totalPurchases}</p>
+                            <p><b>Total Paid:</b> Rs ${c.totalPaid}</p>
+                            <p><b>Outstanding Balance:</b> <span class="font-extrabold text-red-600">Rs ${c.balance}</span></p>
+                            <p><b>Bottle Balance:</b> ${c.bottleBalance} bottles</p>
+                        </div>
+                        <button onclick="ui.hideModal()" class="w-full py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Close Ledger</button>
+                    </div>
+                `;
+                ui.showModal(html);
+            };
+
+            window.adjustCustomerBottles = (id) => {
+                const c = state.customers.find(cust => cust.id === id);
+                const given = prompt(`Bottles Given to ${c.name}:`, c.bottlesGiven || 0);
+                const returned = prompt(`Bottles Returned by ${c.name}:`, c.bottlesReturned || 0);
+                const depositPaid = prompt(`Deposit Paid Amount (Rs):`, c.depositPaid || 0);
+                if (given !== null && returned !== null) {
+                    c.bottlesGiven = parseInt(given) || 0;
+                    c.bottlesReturned = parseInt(returned) || 0;
+                    c.bottleBalance = c.bottlesGiven - c.bottlesReturned;
+                    c.depositPaid = parseFloat(depositPaid) || 0;
+                    data.save();
+                    ui.render();
+                }
+            };
+
+            window.updateDeliveryStatus = (id, status) => {
+                const d = state.deliveries.find(item => item.id === id);
+                if (d) { d.status = status; data.save(); ui.render(); }
+            };
+
+            window.assignDriver = (id, driver) => {
+                const d = state.deliveries.find(item => item.id === id);
+                if (d) { d.driver = driver; d.status = '🔵 Assigned'; data.save(); ui.render(); }
+            };
+
+            // ==================== DELETE DATA ACTIONS ====================
+            window.deleteCustomer = (id) => {
+                const c = state.customers.find(x => x.id === id);
+                if (!c) return;
+                if (!confirm(`Delete customer "${c.name}"?\n\nTheir profile, subscriptions and delivery orders will be deleted. Sales history will remain.`)) return;
+                state.customers = state.customers.filter(x => x.id !== id);
+                state.subscriptions = state.subscriptions.filter(x => x.customerId !== id);
+                state.deliveries = state.deliveries.filter(x => x.customerId !== id);
+                data.save(); ui.render();
+            };
+            window.deleteAllCustomers = () => {
+                if (!state.customers.length) return alert('No customers to delete.');
+                if (!confirm(`DELETE ALL ${state.customers.length} CUSTOMERS?\n\nThis also deletes their subscriptions and delivery orders. Sales history remains.`)) return;
+                state.customers = []; state.subscriptions = []; state.deliveries = [];
+                data.save(); ui.render();
+            };
+            window.deleteDriver = (name) => {
+                if (!confirm(`Delete driver "${name}"?`)) return;
+                state.drivers = state.drivers.filter(x => x !== name);
+                state.deliveries.forEach(d => { if (d.driver === name) d.driver = ''; });
+                data.save(); ui.render();
+            };
+            window.deleteAllDrivers = () => {
+                if (!state.drivers.length) return alert('No drivers to delete.');
+                if (!confirm(`DELETE ALL ${state.drivers.length} DRIVERS?`)) return;
+                state.drivers = []; state.deliveries.forEach(d => d.driver = ''); data.save(); ui.render();
+            };
+            window.deleteDelivery = (id) => {
+                if (!confirm('Delete this delivery order?')) return;
+                state.deliveries = state.deliveries.filter(x => x.id !== id); data.save(); ui.render();
+            };
+            window.deleteAllDeliveries = () => {
+                if (!state.deliveries.length) return alert('No delivery orders to delete.');
+                if (!confirm(`DELETE ALL ${state.deliveries.length} DELIVERY ORDERS?`)) return;
+                state.deliveries = []; data.save(); ui.render();
+            };
+            window.deleteSubscription = (id) => {
+                if (!confirm('Delete this subscription?')) return;
+                state.subscriptions = state.subscriptions.filter(x => x.id !== id); data.save(); ui.render();
+            };
+            window.deleteAllSubscriptions = () => {
+                if (!state.subscriptions.length) return alert('No subscriptions to delete.');
+                if (!confirm(`DELETE ALL ${state.subscriptions.length} SUBSCRIPTIONS?`)) return;
+                state.subscriptions = []; data.save(); ui.render();
+            };
+            window.deleteInventoryItem = (id) => {
+                const item = state.inventory.find(x => x.id === id); if (!item) return;
+                if (!confirm(`Delete inventory item "${item.name}"?`)) return;
+                state.inventory = state.inventory.filter(x => x.id !== id); data.save(); ui.render();
+            };
+            window.deleteAllInventory = () => {
+                if (!state.inventory.length) return alert('No inventory items to delete.');
+                if (!confirm(`DELETE ALL ${state.inventory.length} INVENTORY ITEMS?\n\nYour stock list will become empty.`)) return;
+                state.inventory = []; data.save(); ui.render();
+            };
+            window.deleteExpense = (id) => {
+                const e = state.expenses.find(x => x.id === id); if (!e) return;
+                if (!confirm(`Delete expense "${e.description}" (Rs ${e.amount})?`)) return;
+                state.expenses = state.expenses.filter(x => x.id !== id); data.save(); ui.render();
+            };
+            window.deleteAllExpenses = () => {
+                if (!state.expenses.length) return alert('No expenses to delete.');
+                if (!confirm(`DELETE ALL ${state.expenses.length} EXPENSE RECORDS?`)) return;
+                state.expenses = []; data.save(); ui.render();
+            };
+            window.deleteSale = (id) => {
+                const sale = state.sales.find(x => x.id === id); if (!sale) return;
+                if (!confirm(`Delete this sale of Rs ${sale.total}?\n\nOnly the sale record is removed. Customer balances and stock are not recalculated.`)) return;
+                state.sales = state.sales.filter(x => x.id !== id); data.save(); ui.render();
+            };
+            window.deleteAllSales = () => {
+                if (!state.sales.length) return alert('No sales to delete.');
+                if (!confirm(`DELETE ALL ${state.sales.length} SALES RECORDS?\n\nOnly sales history is removed. Customer balances and stock are not recalculated.`)) return;
+                state.sales = []; data.save(); ui.render();
+            };
+            window.deleteEverything = () => {
+                if (!confirm('⚠️ DELETE EVERYTHING?\n\nThis permanently deletes ALL customers, sales, deliveries, subscriptions, expenses, inventory, drivers, held sales, bottle records, cart data and business settings.\n\nContinue?')) return;
+                if (!confirm('FINAL CONFIRMATION: Delete ALL Dropure Water data now?')) return;
+                state = {
+                    customers: [], expenses: [], sales: [], deliveries: [], subscriptions: [], inventory: [],
+                    drivers: [], heldSales: [], cart: [], shopBottles: { full: 0, empty: 0, damaged: 0, missing: 0 },
+                    settings: { ownerName: 'Dropure Water', paymentMobile: '', paymentBank: '', paymentIban: '' }, activeView: 'pos'
+                };
+                localStorage.removeItem(STORAGE_KEY); data.save(); ui.hideModal(); ui.render();
+                alert('All Dropure Water data has been deleted.');
+            };
+
+            window.adjustInventoryQty = (id) => {
+                const item = state.inventory.find(i => i.id === id);
+                if (!item) return;
+                const newQty = prompt(`Adjust quantity for ${item.name}:`, item.qty);
+                if (newQty !== null && !isNaN(newQty)) {
+                    item.qty = parseInt(newQty) || 0;
+                    data.save();
+                    ui.renderInventory();
+                }
+            };
+
+            const initEvents = () => {
+    dom.passwordForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (dom.passwordInput.value === PASSWORD) {
+            dom.lockScreen.style.display = 'none';
+            dom.appContainer.classList.remove('hidden');
+            data.load();
+            ui.render();
+        } else {
+            dom.passwordError.textContent = 'Invalid password.';
+        }
+    });
+
+    dom.navBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            state.activeView = btn.id.replace('nav-', '');
+            ui.render();
+        });
+    });
+
+    document.querySelectorAll('[data-pos-nav]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            state.activeView = e.currentTarget.dataset.posNav;
+            ui.render();
+        });
+    });
+
+    document.querySelectorAll('.pos-product-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const size = btn.dataset.size;
+            const price = parseFloat(btn.dataset.price);
+            logic.addCartItem(`${size}L Water Bottle`, price, size);
+        });
+    });
+
+    document.getElementById('custom-product-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('custom-name').value;
+        const price = parseFloat(document.getElementById('custom-price').value);
+        const qty = parseInt(document.getElementById('custom-qty').value) || 1;
+        if (name && !isNaN(price)) {
+            for(let i=0; i<qty; i++) logic.addCartItem(name, price);
+            e.target.reset();
+        }
+    });
+
+    dom.pos.clearCart.addEventListener('click', () => { state.cart = []; ui.renderCart(); });
+    dom.pos.checkoutBtn.addEventListener('click', logic.completeSale);
+    dom.pos.discount.addEventListener('input', ui.renderCart);
+    dom.pos.delivery.addEventListener('input', ui.renderCart);
+    dom.pos.amountReceived.addEventListener('input', ui.renderCart);
+
+    dom.pos.paymentMethod.addEventListener('change', (e) => {
+        dom.pos.splitFields.classList.toggle('hidden', e.target.value !== 'Split payment');
+    });
+
+    dom.pos.holdBtn.addEventListener('click', () => {
+        if (state.cart.length === 0) return;
+        state.heldSales.push([...state.cart]);
+        state.cart = [];
+        data.save();
+        ui.render();
+    });
+
+    dom.pos.resumeBtn.addEventListener('click', () => {
+        if (state.heldSales.length > 0) {
+            state.cart = state.heldSales.pop();
+            data.save();
+            ui.render();
+        }
+    });
+
+    dom.customers.addBtn.addEventListener('click', () => {
+        const html = `
+            <form id="new-cust-form" class="space-y-2.5 text-left">
+                <h3 class="font-extrabold text-base mb-2">New Customer Profile</h3>
+                <input type="text" id="cust-name" placeholder="Customer Name *" class="w-full p-2 border rounded-xl text-xs" required>
+                <input type="tel" id="cust-phone" placeholder="Phone Number *" class="w-full p-2 border rounded-xl text-xs" required>
+                <input type="tel" id="cust-wa" placeholder="WhatsApp Number" class="w-full p-2 border rounded-xl text-xs">
+                <input type="text" id="cust-address" placeholder="Address" class="w-full p-2 border rounded-xl text-xs">
+                <input type="text" id="cust-area" placeholder="Area / Location" class="w-full p-2 border rounded-xl text-xs">
+                <select id="cust-type" class="w-full p-2 border rounded-xl text-xs font-bold">
+                    <option value="Walk-in">Walk-in</option>
+                    <option value="Home delivery" selected>Home delivery</option>
+                    <option value="Shop">Shop</option>
+                    <option value="Office">Office</option>
+                    <option value="Restaurant">Restaurant</option>
+                    <option value="Hotel">Hotel</option>
+                </select>
+                <input type="number" id="cust-freq" value="3" placeholder="Order Frequency (Days)" class="w-full p-2 border rounded-xl text-xs">
+                <textarea id="cust-notes" placeholder="Notes..." class="w-full p-2 border rounded-xl text-xs"></textarea>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="ui.hideModal()" class="px-4 py-2 bg-slate-200 font-bold rounded-xl text-xs">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs">Save Profile</button>
+                </div>
+            </form>
+        `;
+        ui.showModal(html);
+
+        document.getElementById('new-cust-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            state.customers.push({
+                id: 'cust_' + Date.now(),
+                name: document.getElementById('cust-name').value,
+                phone: document.getElementById('cust-phone').value,
+                whatsapp: document.getElementById('cust-wa').value || document.getElementById('cust-phone').value,
+                address: document.getElementById('cust-address').value,
+                area: document.getElementById('cust-area').value,
+                type: document.getElementById('cust-type').value,
+                orderFrequencyDays: parseInt(document.getElementById('cust-freq').value) || 3,
+                notes: document.getElementById('cust-notes').value,
+                totalPurchases: 0, totalPaid: 0, balance: 0, bottleBalance: 0,
+                bottlesGiven: 0, bottlesReturned: 0, depositAmount: 0, depositPaid: 0
+            });
+            data.save();
+            ui.hideModal();
+            ui.render();
+        });
+    });
+
+    document.getElementById('add-subscription-btn').addEventListener('click', () => {
+        const html = `
+            <form id="new-sub-form" class="space-y-2.5 text-left">
+                <h3 class="font-extrabold text-base mb-2">New Regular Subscription</h3>
+                <select id="sub-cust" class="w-full p-2 border rounded-xl text-xs font-bold" required>
+                    ${state.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                </select>
+                <select id="sub-plan" class="w-full p-2 border rounded-xl text-xs font-bold">
+                    <option value="Daily">Daily (1 x 19L every day)</option>
+                    <option value="Alternate days">Alternate days (2 x 19L every 2 days)</option>
+                    <option value="Weekly">Weekly (5 x 19L every week)</option>
+                </select>
+                <input type="number" id="sub-qty" value="1" min="1" placeholder="Bottle Quantity" class="w-full p-2 border rounded-xl text-xs" required>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="ui.hideModal()" class="px-4 py-2 bg-slate-200 font-bold rounded-xl text-xs">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs">Create Subscription</button>
+                </div>
+            </form>
+        `;
+        ui.showModal(html);
+
+        document.getElementById('new-sub-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const custId = document.getElementById('sub-cust').value;
+            const customer = state.customers.find(c => c.id === custId);
+            state.subscriptions.push({
+                id: 'sub_' + Date.now(),
+                customerId: custId,
+                customerName: customer ? customer.name : 'Unknown',
+                plan: document.getElementById('sub-plan').value,
+                qty: parseInt(document.getElementById('sub-qty').value) || 1,
+                product: '19L Bottle',
+                startDate: new Date().toISOString().split('T')[0],
+                status: 'Active'
+            });
+            data.save();
+            ui.hideModal();
+            ui.renderSubscriptions();
+        });
+    });
+
+    document.getElementById('add-stock-item-btn').addEventListener('click', () => {
+        const html = `
+            <form id="new-stock-form" class="space-y-2.5 text-left">
+                <h3 class="font-extrabold text-base mb-2">Add Stock / Inventory Item</h3>
+                <select id="stock-cat" class="w-full p-2 border rounded-xl text-xs font-bold">
+                    <option value="Water products">Water products</option>
+                    <option value="Bottles">Bottles</option>
+                    <option value="RO/filter materials">RO/filter materials</option>
+                </select>
+                <input type="text" id="stock-name" placeholder="Item Name (e.g. Carbon filter)" class="w-full p-2 border rounded-xl text-xs" required>
+                <input type="number" id="stock-qty" placeholder="Current Quantity" class="w-full p-2 border rounded-xl text-xs" required>
+                <input type="number" id="stock-min" placeholder="Minimum Alert Threshold" class="w-full p-2 border rounded-xl text-xs" required>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="ui.hideModal()" class="px-4 py-2 bg-slate-200 font-bold rounded-xl text-xs">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">Save Item</button>
+                </div>
+            </form>
+        `;
+        ui.showModal(html);
+
+        document.getElementById('new-stock-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            state.inventory.push({
+                id: 'inv_' + Date.now(),
+                category: document.getElementById('stock-cat').value,
+                name: document.getElementById('stock-name').value,
+                qty: parseInt(document.getElementById('stock-qty').value) || 0,
+                min: parseInt(document.getElementById('stock-min').value) || 5
+            });
+            data.save();
+            ui.hideModal();
+            ui.renderInventory();
+        });
+    });
+
+    dom.customers.search.addEventListener('input', ui.renderCustomers);
+
+    dom.bottles.saveBtn.addEventListener('click', () => {
+        state.shopBottles.full = parseInt(dom.bottles.full.value) || 0;
+        state.shopBottles.empty = parseInt(dom.bottles.empty.value) || 0;
+        state.shopBottles.damaged = parseInt(dom.bottles.damaged.value) || 0;
+        state.shopBottles.missing = parseInt(dom.bottles.missing.value) || 0;
+        data.save();
+        alert('Shop bottle inventory saved successfully!');
+    });
+
+    dom.deliveries.addDriverBtn.addEventListener('click', () => {
+        const name = dom.deliveries.driverName.value.trim();
+        if (name) {
+            state.drivers.push(name);
+            dom.deliveries.driverName.value = '';
+            data.save();
+            ui.renderDeliveries();
+        }
+    });
+
+    document.getElementById('add-expense-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        state.expenses.push({
+            id: 'exp_' + Date.now(),
+            date: document.getElementById('expense-date').value,
+            category: document.getElementById('expense-category').value,
+            description: document.getElementById('expense-description').value,
+            amount: parseFloat(document.getElementById('expense-amount').value)
+        });
+        data.save();
+        e.target.reset();
+        ui.render();
+    });
+
+// Generate Bill Event Listener (With Print & WhatsApp Invoice sending)
+document.getElementById('generate-bill-btn').addEventListener('click', () => {
+    const custId = document.getElementById('billing-customer-select').value;
+    const month = document.getElementById('billing-month-select').value;
+    const customer = state.customers.find(c => c.id === custId);
+    
+    if (!customer) {
+        alert('Please select a customer.');
+        return;
+    }
+
+    const customerSales = state.sales.filter(s => 
+        s.customerId === custId && s.date.startsWith(month)
+    );
+
+    const totalAmount = customerSales.reduce((sum, s) => sum + s.total, 0);
+
+    const billHtml = `
+        <div class="p-6 space-y-4 border rounded-2xl bg-white max-w-2xl mx-auto">
+            <div class="flex justify-between items-start border-b pb-4">
+                <div>
+                    <h2 class="text-2xl font-black text-blue-600">${state.settings.ownerName || 'Dropure Water'}</h2>
+                    <p class="text-xs text-slate-500">Invoice Period: ${month}</p>
+                    ${state.settings.paymentMobile ? `<p class="text-xs text-slate-500">Phone/Easypaisa: ${state.settings.paymentMobile}</p>` : ''}
+                    ${state.settings.paymentBank ? `<p class="text-xs text-slate-500">Bank: ${state.settings.paymentBank} (${state.settings.paymentIban})</p>` : ''}
+                </div>
+                <div class="text-right">
+                    <span class="text-xs font-bold bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full uppercase">Customer Invoice</span>
+                    <p class="font-black text-slate-900 mt-2 text-base">${customer.name}</p>
+                    <p class="text-xs text-slate-500">📞 ${customer.phone}</p>
+                    <p class="text-xs text-slate-500">📍 ${customer.address || ''} ${customer.area ? '(' + customer.area + ')' : ''}</p>
+                </div>
+            </div>
+            
+            <div class="space-y-2 text-xs">
+                <p class="font-bold text-slate-700">Deliveries & Orders Breakdown (${customerSales.length} total):</p>
+                ${customerSales.length ? `
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b bg-slate-50 font-bold text-slate-600">
+                                <th class="p-2">Date</th>
+                                <th class="p-2">Items</th>
+                                <th class="p-2">Payment</th>
+                                <th class="p-2 text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y">
+                            ${customerSales.map(s => `
+                                <tr>
+                                    <td class="p-2">${new Date(s.date).toLocaleDateString()}</td>
+                                    <td class="p-2">${s.items.map(i => `${i.name} (${i.qty})`).join(', ')}</td>
+                                    <td class="p-2">${s.method}</td>
+                                    <td class="p-2 text-right font-bold">Rs ${s.total}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                ` : '<p class="text-slate-400 italic py-3 text-center">No sales records found for this month.</p>'}
+            </div>
+
+            <div class="border-t pt-3 flex justify-between items-center font-black text-base">
+                <span>Total Amount Due:</span>
+                <span class="text-blue-600">Rs ${totalAmount}</span>
+            </div>
+
+            <div class="text-center border-t pt-3 text-[11px] text-slate-400">
+                <p>Thank you for choosing ${state.settings.ownerName || 'Dropure Water'}!</p>
+            </div>
+
+            <div class="no-print grid grid-cols-1 md:grid-cols-2 gap-2">
+                <button id="send-wa-bill-btn" class="w-full py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-xs hover:bg-emerald-700 transition flex items-center justify-center gap-1.5">
+                    💬 Send WhatsApp Invoice
+                </button>
+                <button id="print-now-btn" class="w-full py-2.5 bg-slate-900 text-white font-bold rounded-xl text-xs hover:bg-slate-800 transition flex items-center justify-center gap-1.5">
+                    🖨️ Print Clean Invoice
+                </button>
+            </div>
+        </div>
+    `;
+
+    const output = document.getElementById('bill-output');
+    output.classList.remove('hidden');
+    output.innerHTML = billHtml;
+
+    // Send WhatsApp Monthly Invoice
+    document.getElementById('send-wa-bill-btn').addEventListener('click', () => {
+        let waMsg = `📋 *MONTHLY WATER INVOICE*\n`;
+        waMsg += `*From:* ${state.settings.ownerName || 'Dropure Water'}\n`;
+        waMsg += `*Customer:* ${customer.name}\n`;
+        waMsg += `*Period:* ${month}\n\n`;
+        waMsg += `*Order Breakdown:*\n`;
+
+        if (customerSales.length) {
+            customerSales.forEach((s, idx) => {
+                const itemsText = s.items.map(i => `${i.name} (${i.qty})`).join(', ');
+                waMsg += `${idx + 1}. ${new Date(s.date).toLocaleDateString()} - ${itemsText} = Rs ${s.total}\n`;
+            });
+        } else {
+            waMsg += `No sales recorded for this period.\n`;
+        }
+
+        waMsg += `\n*Total Amount Due:* Rs ${totalAmount}\n`;
+        
+        if (state.settings.paymentMobile || state.settings.paymentIban) {
+            waMsg += `\n*Payment Methods:*\n`;
+            if (state.settings.paymentMobile) waMsg += `• Easypaisa/JazzCash: ${state.settings.paymentMobile}\n`;
+            if (state.settings.paymentBank) waMsg += `• Bank: ${state.settings.paymentBank} (${state.settings.paymentIban})\n`;
+        }
+
+        waMsg += `\nThank you for choosing ${state.settings.ownerName || 'Dropure Water'}!`;
+
+        logic.sendWhatsApp(customer.whatsapp || customer.phone, waMsg);
+    });
+
+    // Direct isolated printing
+    document.getElementById('print-now-btn').addEventListener('click', () => {
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Invoice - ${customer.name}</title>
+                <script src="https://cdn.tailwindcss.com"><\/script>
+                <style>
+                    body { font-family: sans-serif; padding: 20px; background: white; }
+                    @media print { .no-print { display: none !important; } }
+                </style>
+            </head>
+            <body>
+                ${billHtml}
+                <script>
+                    setTimeout(() => {
+                        window.print();
+                        window.close();
+                    }, 400);
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    });
+});
+    document.getElementById('save-btn').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `dropure_backup_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+    });
+
+    document.getElementById('load-btn').addEventListener('click', () => document.getElementById('load-file-input').click());
+    document.getElementById('load-file-input').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (re) => {
+            try {
+                state = JSON.parse(re.target.result);
+                data.save();
+                ui.render();
+                alert('Data loaded successfully!');
+            } catch (err) { alert('Invalid backup file.'); }
+        };
+        reader.readAsText(file);
+    });
+};
+
+            initEvents();
+        });
+    </script>
+</body>
+</html>
